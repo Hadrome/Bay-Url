@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${link.note ? `<div style="margin-top:4px; font-size:12px; color:#666;">📝 ${link.note}</div>` : ''}
                         </div>
                     </div>
-                    <div class="actions" style="display:flex; gap:8px;">
+                    <div class="actions">
                         <button onclick="updateNote(${link.id}, '${link.note || ''}')" class="note-btn" style="background:rgba(255,149,0,0.1); color:#ff9500;">备注</button>
                         <button onclick="updateLink(${link.id})" class="edit-btn" style="background:rgba(0,122,255,0.1); color:#007aff;">有效期</button>
                         <button onclick="deleteLink(${link.id})" class="delete-btn">删除</button>

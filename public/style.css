@@ -89,7 +89,7 @@ body::before {
 
 /* Wider container for Admin Dashboard */
 .container.wide {
-    max-width: 900px;
+    max-width: 1200px;
 }
 
 /* BayMaxen Logo Text */
@@ -328,8 +328,10 @@ h3 {
     background: transparent;
     padding: 16px 20px;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 12px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     transition: background 0.2s;
 }
@@ -343,9 +345,9 @@ h3 {
 }
 
 .link-info {
-    flex: 1;
+    flex: 1 1 300px;
     min-width: 0;
-    margin-right: 16px;
+    word-break: break-word;
 }
 
 .link-slug {
@@ -360,9 +362,7 @@ h3 {
 .link-origin {
     font-size: 13px;
     color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-break: break-all;
     display: block;
 }
 
@@ -385,6 +385,18 @@ h3 {
 .delete-btn:hover {
     background: var(--system-red);
     color: white;
+}
+
+/* Action buttons container */
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.actions button {
+    white-space: nowrap;
 }
 
 /* Result Area (Pop-up style) */
