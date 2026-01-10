@@ -7,9 +7,9 @@ export async function onRequest(context) {
         return next();
     }
 
-    // 2. If valid filename (has extension), pass to static assets
+    // 2. If valid filename (has extension) or is 'admin' path, pass to static assets
     // This prevents DB lookups for style.css, script.js, favicon.ico, etc.
-    if (slug.includes('.')) {
+    if (slug.includes('.') || slug === 'admin') {
         return next();
     }
 
