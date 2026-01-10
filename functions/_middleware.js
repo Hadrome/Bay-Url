@@ -3,7 +3,7 @@ export async function onRequest(context) {
     const url = new URL(request.url);
 
     // Define protected paths
-    const protectedPaths = ["/api/list", "/api/delete"];
+    const protectedPaths = ["/api/list", "/api/delete", "/api/settings", "/api/dashboard"];
 
     if (protectedPaths.some(path => url.pathname.startsWith(path))) {
         const token = request.headers.get("Admin-Token");

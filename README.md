@@ -77,6 +77,11 @@
    CREATE INDEX IF NOT EXISTS idx_slug ON links(slug); CREATE INDEX IF NOT EXISTS idx_link_id ON visits(link_id);
    ```
 
+   **命令 4 (创建 settings 表 - 新功能):**
+   ```sql
+   CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT); INSERT OR IGNORE INTO settings (key, value) VALUES ('daily_limit', '100');
+   ```
+
 #### 5. 设置管理员密码
 1. 回到 Pages 项目 -> **Settings** -> **Environment variables**。
 2. 点击 **Add variable**：

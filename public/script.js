@@ -171,6 +171,103 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (logoutBtn) logoutBtn.addEventListener('click', logout);
-        if (authToken) loadLinks();
+        if (authToken) {
+            loadLinks();
+            loadDashboard();
+            loadSettings();
+        }
+
+        // --- Dashboard & Settings Logic ---
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/dashboard', {
+                    headers: { 'Admin-Token': authToken }
+                });
+                if (!response.ok) return; // Silent fail for duplicate calls or auth issues handled elsewhere
+
+                const data = await response.json();
+
+                // Update stats cards
+                document.getElementById('todayVisits').textContent = data.today.visits;
+                document.getElementById('todayLinks').textContent = data.today.links;
+
+                // Render Chart
+                renderChart(data.trend);
+            } catch (err) {
+                console.error("Dashboard Error:", err);
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/settings', { headers: { 'Admin-Token': authToken } });
+                const data = await response.json();
+                if (data.daily_limit !== undefined) {
+                    document.getElementById('dailyLimitInput').value = data.daily_limit;
+                }
+            } catch (err) {
+                console.error("Settings Error:", err);
+            }
+        }
+
+        // Settings Form Handler
+        const settingsForm = document.getElementById('settingsForm');
+        if (settingsForm) {
+            settingsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const limit = parseInt(document.getElementById('dailyLimitInput').value);
+                try {
+                    const response = await fetch('/api/settings', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Admin-Token': authToken
+                        },
+                        body: JSON.stringify({ daily_limit: limit })
+                    });
+                    if (response.ok) {
+                        alert('设置已保存');
+                    } else {
+                        alert('保存失败');
+                    }
+                } catch (err) {
+                    alert('保存错误: ' + err.message);
+                }
+            });
+        }
+
+        function renderChart(trendData) {
+            const ctx = document.getElementById('trendChart');
+            if (!ctx) return;
+
+            // Destroy existing chart if any (simple implicit check via window prop if strictly needed, but let's assume reload on login)
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: trendData.map(d => new Date(d.date).toLocaleDateString()),
+                    datasets: [{
+                        label: '每日访问量',
+                        data: trendData.map(d => d.visits),
+                        borderColor: '#0071e3',
+                        backgroundColor: 'rgba(0, 113, 227, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
     }
 });

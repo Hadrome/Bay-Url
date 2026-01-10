@@ -19,4 +19,12 @@ CREATE TABLE IF NOT EXISTS visits (
 );
 
 CREATE INDEX IF NOT EXISTS idx_slug ON links(slug);
-CREATE INDEX IF NOT EXISTS idx_link_id ON visits(link_id);
+
+-- Settings table for storing configuration (e.g., daily_limit)
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT
+);
+
+-- Insert default limit if not exists (default: 0 means unlimited, or set a specific number like 50)
+INSERT OR IGNORE INTO settings (key, value) VALUES ('daily_limit', '100');

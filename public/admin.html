@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理后台 - 云链</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -27,6 +28,38 @@
             <div class="admin-header">
                 <h2>链接管理</h2>
                 <button id="logoutBtn" style="width: auto; padding: 0.5rem 1rem; background: #64748b;">退出</button>
+                <button id="logoutBtn" style="width: auto; padding: 0.5rem 1rem; background: #64748b;">退出</button>
+            </div>
+
+            <!-- Dashboard Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>今日访问</h3>
+                    <div class="stat-value" id="todayVisits">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>今日新增</h3>
+                    <div class="stat-value" id="todayLinks">0</div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+
+            <!-- Settings -->
+            <div class="settings-panel">
+                <h3>系统设置</h3>
+                <form id="settingsForm" style="margin-top:15px; display:flex; gap:10px; align-items:center;">
+                    <label>每日创建限额:</label>
+                    <input type="number" id="dailyLimitInput" min="0" style="width:100px; padding:8px;">
+                    <button type="submit" style="width:auto; padding:8px 16px;">保存</button>
+                </form>
+            </div>
+
+            <div class="admin-header" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
+                <h3>链接列表</h3>
             </div>
 
             <div id="linkList" class="link-list">

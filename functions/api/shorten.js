@@ -1,80 +1,79 @@
 export async function onRequestPost(context) {
+    const { request, env } = context;
+
     try {
-        const { request, env } = context;
-        const { url, slug } = await request.json();
+        const { url, slug: customSlug } = await request.json();
 
         if (!url) {
             return new Response(JSON.stringify({ message: "URL is required" }), {
                 status: 400,
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json" }
             });
         }
+
+        // --- Check Daily Limit ---
+        try {
+            // 1. Get Limit
+            const limitStmt = env.DB.prepare("SELECT value FROM settings WHERE key = 'daily_limit'");
+            const limitResult = await limitStmt.first();
+            const dailyLimit = limitResult ? parseInt(limitResult.value) : 100;
+
+            if (dailyLimit > 0) {
+                // 2. Count today's links
+                const countStmt = env.DB.prepare("SELECT COUNT(*) as count FROM links WHERE date(created_at, 'unixepoch') = date('now')");
+                const countResult = await countStmt.first();
+                const todayCount = countResult.count;
+
+                if (todayCount >= dailyLimit) {
+                    return new Response(JSON.stringify({ message: `今日创建链接已达上限 (${dailyLimit}条)，请明日再试` }), {
+                        status: 429,
+                        headers: { "Content-Type": "application/json" }
+                    });
+                }
+            }
+        } catch (e) {
+            console.error("Limit check failed", e);
+        }
+        // -------------------------
 
         // Validate URL format
         try {
             new URL(url);
         } catch (e) {
-            return new Response(JSON.stringify({ message: "Invalid URL" }), {
+            return new Response(JSON.stringify({ message: "Invalid URL format" }), {
                 status: 400,
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json" }
             });
         }
 
-        let finalSlug = slug;
+        let slug = customSlug;
+        if (!slug) {
+            // Generate random 6-char slug
+            slug = Math.random().toString(36).substring(2, 8);
+        }
 
-        if (!finalSlug) {
-            // Generate random slug (6 chars)
-            finalSlug = generateRandomString(6);
-            // Ensure uniqueness (simple retry logic)
-            let exists = await env.DB.prepare("SELECT 1 FROM links WHERE slug = ?").bind(finalSlug).first();
-            let retries = 0;
-            while (exists && retries < 5) {
-                finalSlug = generateRandomString(6);
-                exists = await env.DB.prepare("SELECT 1 FROM links WHERE slug = ?").bind(finalSlug).first();
-                retries++;
-            }
-            if (exists) {
-                return new Response(JSON.stringify({ message: "Failed to generate unique slug" }), {
-                    status: 500,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }
-        } else {
-            // Check custom slug
-            const exists = await env.DB.prepare("SELECT 1 FROM links WHERE slug = ?").bind(finalSlug).first();
-            if (exists) {
-                return new Response(JSON.stringify({ message: "Slug already exists" }), {
-                    status: 409,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }
+        // Check if slug exists
+        const existing = await env.DB.prepare("SELECT slug FROM links WHERE slug = ?").bind(slug).first();
+        if (existing) {
+            return new Response(JSON.stringify({ message: "Slug already exists" }), {
+                status: 409,
+                headers: { "Content-Type": "application/json" }
+            });
         }
 
         // Insert into DB
-        const info = await env.DB.prepare(
-            "INSERT INTO links (url, slug) VALUES (?, ?)"
-        )
-            .bind(url, finalSlug)
+        await env.DB.prepare("INSERT INTO links (url, slug) VALUES (?, ?)")
+            .bind(url, slug)
             .run();
 
-        return new Response(JSON.stringify({ slug: finalSlug, url: url }), {
-            status: 201,
-            headers: { "Content-Type": "application/json" },
+        return new Response(JSON.stringify({ slug, url }), {
+            headers: { "Content-Type": "application/json" }
         });
 
     } catch (err) {
         return new Response(JSON.stringify({ message: err.message }), {
             status: 500,
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json" }
         });
     }
-}
-
-function generateRandomString(length) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
 }
