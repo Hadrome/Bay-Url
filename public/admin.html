@@ -64,14 +64,38 @@
                 <canvas id="trendChart"></canvas>
             </div>
 
-            <!-- Settings -->
-            <div class="settings-panel">
-                <h3>系统设置</h3>
-                <form id="settingsForm" style="margin-top:15px; display:flex; gap:10px; align-items:center;">
-                    <label>每日创建限额:</label>
-                    <input type="number" id="dailyLimitInput" min="0" style="width:100px; padding:8px;">
-                    <button type="submit" style="width:auto; padding:8px 16px;">保存</button>
-                </form>
+            <!-- Settings & Maintenance Grid -->
+            <div class="stats-grid">
+                <!-- System Settings -->
+                <div class="settings-panel" style="margin-bottom:0; height:100%;">
+                    <h3>系统设置</h3>
+                    <form id="settingsForm" style="margin-top:15px;">
+                        <div style="margin-bottom:12px;">
+                            <label
+                                style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:4px;">每日创建限额</label>
+                            <div style="display:flex; gap:8px;">
+                                <input type="number" id="dailyLimitInput" min="0" step="100" style="padding:10px;">
+                                <button type="submit" style="width:auto; padding:10px 16px;">保存</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Data Maintenance -->
+                <div class="settings-panel" style="margin-bottom:0; height:100%;">
+                    <h3>数据维护</h3>
+                    <form id="cleanForm" style="margin-top:15px;">
+                        <div style="margin-bottom:12px;">
+                            <label
+                                style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:4px;">日志保留天数</label>
+                            <div style="display:flex; gap:8px;">
+                                <input type="number" id="retentionDaysInput" min="1" value="30" style="padding:10px;">
+                                <button type="submit" class="btn-secondary"
+                                    style="width:auto; padding:10px 16px; background:rgba(255,59,48,0.1); color:var(--system-red);">清理</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <div class="admin-header" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">

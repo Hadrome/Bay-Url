@@ -170,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const showDashboard = () => {
             adminLogin.classList.add('hidden');
             dashboard.classList.remove('hidden');
+            document.querySelector('.container').classList.add('wide'); // Widen Layout
             if (dashboard.classList.contains('hidden')) dashboard.style.display = 'block';
             if (adminLogin.classList.contains('hidden')) adminLogin.style.display = 'none';
         };
@@ -242,6 +243,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.daily_limit !== undefined) {
                     document.getElementById('dailyLimitInput').value = data.daily_limit;
                 }
+                // Determine retention days (need to fetch from DB via settings API? 
+                // Currently settings API only returns daily_limit? Let's check settings.js or modify it.
+                // Or just rely on default 30 if not set. Wait, settings.js needs update to return all settings?
+                // For now, let's assume settings API returns *all* settings or modify it.
+                if (data.retention_days !== undefined) {
+                    document.getElementById('retentionDaysInput').value = data.retention_days;
+                }
             } catch (err) {
                 console.error("Settings Error:", err);
             }
@@ -273,6 +281,43 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (err) {
                     showToast('保存错误: ' + err.message, 'error');
+                } finally {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            });
+        }
+
+        // Data Clean Logic
+        const cleanForm = document.getElementById('cleanForm');
+        if (cleanForm) {
+            cleanForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!confirm("确定要清理旧日志吗？这无法撤销。")) return; // Double confirmation
+
+                const btn = cleanForm.querySelector('button');
+                const originalText = btn.textContent;
+                btn.textContent = '清理中...';
+                btn.disabled = true;
+
+                const days = parseInt(document.getElementById('retentionDaysInput').value);
+                try {
+                    const response = await fetch('/api/clean', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Admin-Token': authToken
+                        },
+                        body: JSON.stringify({ retention_days: days })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        showToast(data.message || '清理完成');
+                    } else {
+                        showToast(data.error || '清理失败', 'error');
+                    }
+                } catch (err) {
+                    showToast('清理错误: ' + err.message, 'error');
                 } finally {
                     btn.textContent = originalText;
                     btn.disabled = false;

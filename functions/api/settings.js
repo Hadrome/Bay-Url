@@ -1,9 +1,17 @@
 export async function onRequestGet(context) {
     const { env } = context;
     try {
-        const stmt = env.DB.prepare("SELECT value FROM settings WHERE key = 'daily_limit'");
-        const result = await stmt.first();
-        return new Response(JSON.stringify({ daily_limit: result ? parseInt(result.value) : 100 }), {
+        const { results } = await env.DB.prepare("SELECT key, value FROM settings").all();
+
+        const settings = { daily_limit: 100, retention_days: 30 }; // Defaults
+        if (results) {
+            results.forEach(row => {
+                if (row.key === 'daily_limit') settings.daily_limit = parseInt(row.value);
+                if (row.key === 'retention_days') settings.retention_days = parseInt(row.value);
+            });
+        }
+
+        return new Response(JSON.stringify(settings), {
             headers: { "Content-Type": "application/json" }
         });
     } catch (err) {

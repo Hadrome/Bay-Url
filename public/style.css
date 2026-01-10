@@ -77,11 +77,58 @@ body::before {
     }
 }
 
+/* Container */
 .container {
     width: 100%;
     max-width: 520px;
+    /* Default for mobile/login */
     margin: 0 auto;
     z-index: 1;
+    transition: max-width 0.3s ease;
+}
+
+/* Wider container for Admin Dashboard */
+.container.wide {
+    max-width: 900px;
+}
+
+/* BayMaxen Logo Text */
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo-text {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FF9500 0%, #FF2D55 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+    position: relative;
+    display: inline-block;
+}
+
+.logo-text::after {
+    content: 'BayMaxen';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    z-index: -1;
+    background: inherit;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: blur(8px);
+    opacity: 0.5;
+}
+
+.logo-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 4px;
 }
 
 /* Glassmorphism Card (iOS Style) */
