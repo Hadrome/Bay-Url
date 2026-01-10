@@ -65,27 +65,23 @@ export async function onRequestPost(context) {
         // Calculate Expiration
         let expires_at = null;
         let max_visits = null;
-        const expiration = (await request.json()).expiration || 'none'; // Re-read body carefully or destructure above
 
-        // Fix: Cannot read body twice. Need to restructure top of function.
-        // Let's rewrite the body parsing part or this block.
-        // Wait, I can't re-read stream.
-        // I need to use the destructuring from line 5.
+        // expiration is already destructured from line 5
+        const expVal = expiration || 'none';
 
-        // RE-PLAN: see below target content logic.
-        // I will replace the INSERT block and rely on variables set earlier.
-        // But variables aren't set earlier. I need to modify the TOP of the file too or just do it here if I have access.
-        // The top of file extracted `url, slug, turnstileToken`. I didn't extract `expiration`.
-        // I need to use `multi_replace` to fix both top and bottom or just `replace` top first.
+        if (expVal === '1_time') {
+            max_visits = 1;
+        } else if (expVal === '1_day') {
+            expires_at = Math.floor(Date.now() / 1000) + 86400;
+        } else if (expVal === '7_days') {
+            expires_at = Math.floor(Date.now() / 1000) + (86400 * 7);
+        } else if (expVal === '30_days') {
+            expires_at = Math.floor(Date.now() / 1000) + (86400 * 30);
+        }
 
-        // Let's just REPLACE THE WHOLE FILE CONTENT CHUNK or use multi_replace.
-        // Actually, just fetching `expiration` at top is better.
-
-        // Let's do a multi_replace on shorten.js to:
-        // 1. Extract expiration at top.
-        // 2. Logic before INSERT.
-        // 3. Update INSERT statement.
-
+        await env.DB.prepare("INSERT INTO links (url, slug, expires_at, max_visits, created_at) VALUES (?, ?, ?, ?, unixepoch())")
+            .bind(url, slug, expires_at, max_visits)
+            .run();
 
         return new Response(JSON.stringify({ slug, url }), {
             headers: { "Content-Type": "application/json" }
