@@ -4,8 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>云链 BayUrl</title>
+    <meta name="description" content="BayUrl - 优雅的短链接服务，让您的链接更简洁、更美观">
+    <title>BayUrl - 优雅的短链接服务</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>">
 </head>
 
 <body>
@@ -13,52 +16,49 @@
         <div class="card">
             <div class="logo-container">
                 <div class="logo-text">BayUrl</div>
-                <div class="logo-subtitle">DESIGNED BY BAYMAXEN</div>
+                <div class="logo-subtitle">优雅的短链接服务</div>
             </div>
 
             <form id="shortenForm">
                 <div class="form-group">
-                    <input type="text" id="urlInput" placeholder="在此输入长链接 (如 google.com)" required autocomplete="off">
+                    <input type="text" id="urlInput" placeholder="✨ 粘贴您的长链接..." required autocomplete="off">
                     <div id="errorMsg" class="error-message"></div>
                 </div>
 
                 <div class="form-group">
-                    <input type="text" id="slugInput" placeholder="自定义后缀 (可选)" pattern="[a-zA-Z0-9-_]+" maxlength="20"
-                        autocomplete="off">
+                    <input type="text" id="slugInput" placeholder="🏷️ 自定义后缀 (可选)" pattern="[a-zA-Z0-9-_]+"
+                        maxlength="20" autocomplete="off">
                 </div>
 
                 <div class="form-group">
-                    <select id="expirationSelect"
-                        style="width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 14px; background: rgba(255,255,255,0.8); outline: none;">
-                        <option value="none" selected>永久有效 (默认)</option>
-                        <option value="1_time">仅访问1次 (阅后即焚)</option>
-                        <option value="1_day">1天后过期</option>
-                        <option value="7_days">7天后过期</option>
-                        <option value="30_days">30天后过期</option>
+                    <select id="expirationSelect">
+                        <option value="none" selected>⏳ 永久有效</option>
+                        <option value="1_time">🔥 阅后即焚 (仅1次)</option>
+                        <option value="1_day">📅 1天后过期</option>
+                        <option value="7_days">📅 7天后过期</option>
+                        <option value="30_days">📅 30天后过期</option>
                     </select>
                 </div>
 
-                <button type="submit">缩短链接</button>
+                <button type="submit">
+                    <span>✨ 生成短链接</span>
+                </button>
             </form>
 
             <div id="result" class="result">
                 <span class="success-icon">🎉</span>
+                <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">您的短链接已生成</div>
                 <a href="#" id="shortUrl" class="short-url" target="_blank"></a>
-                <button id="copyBtn" class="copy-btn">复制链接</button>
+                <button id="copyBtn" class="copy-btn">📋 复制链接</button>
             </div>
         </div>
 
         <footer>
-            <p>&copy; 2026 BayUrl. <a href="/admin.html">管理后台</a></p>
+            <p>© 2026 BayUrl · <a href="/admin.html">管理后台</a></p>
         </footer>
     </div>
 
     <script src="script.js"></script>
-    <style>
-        .hidden {
-            display: none !important;
-        }
-    </style>
 </body>
 
 </html>

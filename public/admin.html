@@ -4,8 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理后台 - 云链</title>
+    <meta name="description" content="BayUrl 管理后台 - 管理您的短链接">
+    <title>管理后台 - BayUrl</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -13,49 +16,42 @@
     <div class="container">
         <!-- Login View -->
         <div id="adminLogin" class="card">
-            <h1>管理员登录</h1>
-            <p class="subtitle">请输入访问令牌</p>
+            <div class="logo-container">
+                <div class="logo-text" style="font-size: 36px;">🔐</div>
+                <h1 style="font-size: 28px; margin-top: 16px;">管理员登录</h1>
+            </div>
+            <p class="subtitle">请输入您的访问令牌</p>
             <form id="loginForm">
                 <div class="form-group">
-                    <input type="password" id="tokenInput" placeholder="Admin Token" required>
+                    <input type="password" id="tokenInput" placeholder="🔑 Admin Token" required>
                 </div>
-                <button type="submit">登录</button>
+                <button type="submit">🚀 进入后台</button>
             </form>
         </div>
 
         <!-- Dashboard View -->
         <div id="dashboard" class="hidden">
+            <!-- Header Card -->
             <div class="card">
                 <div class="admin-header">
                     <h2>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            style="vertical-align: middle; margin-right: 8px;">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                        </svg>
-                        链接管理
+                        <span style="margin-right: 10px;">📊</span>
+                        数据概览
                     </h2>
                     <button id="logoutBtn" class="btn-secondary">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            style="vertical-align: middle; margin-right: 4px;">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                            <polyline points="16 17 21 12 16 7"></polyline>
-                            <line x1="21" y1="12" x2="9" y2="12"></line>
-                        </svg>
-                        退出
+                        <span style="margin-right: 6px;">🚪</span>
+                        退出登录
                     </button>
                 </div>
 
-                <!-- Dashboard Stats -->
+                <!-- Stats Grid -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <h3>今日访问</h3>
+                        <h3>📈 今日访问</h3>
                         <div class="stat-value" id="todayVisits">0</div>
                     </div>
                     <div class="stat-card">
-                        <h3>今日新增</h3>
+                        <h3>🔗 今日新增</h3>
                         <div class="stat-value" id="todayLinks">0</div>
                     </div>
                 </div>
@@ -65,44 +61,52 @@
                     <canvas id="trendChart"></canvas>
                 </div>
 
-                <!-- System Settings -->
+                <!-- Settings -->
                 <div class="settings-panel">
-                    <h3>系统设置</h3>
-                    <form id="settingsForm" style="margin-top:15px;">
-                        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                            <label style="font-size:14px; color:var(--text-secondary);">每日创建限额</label>
+                    <h3>⚙️ 系统设置</h3>
+                    <form id="settingsForm" style="margin-top: 16px;">
+                        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                            <label style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">
+                                每日创建限额
+                            </label>
                             <input type="number" id="dailyLimitInput" min="0" step="100"
-                                style="padding:10px; width:120px;">
-                            <button type="submit" style="width:auto; padding:10px 20px;">保存</button>
+                                style="width: 140px; padding: 12px 16px;">
+                            <button type="submit" style="width: auto; padding: 12px 24px;">
+                                💾 保存
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <!-- Link List Section -->
-            <div class="card" style="margin-top:24px;">
+            <!-- Link List Card -->
+            <div class="card" style="margin-top: 24px;">
                 <div
-                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
-                    <h3 style="margin:0;">链接列表</h3>
-                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                        <!-- Search -->
-                        <input type="text" id="searchInput" placeholder="搜索链接或备注..."
-                            style="padding:10px 16px; width:200px; border-radius:99px; border:1px solid rgba(0,0,0,0.1); font-size:14px;">
-                        <button id="searchBtn" class="btn-secondary" style="padding:10px 16px;">搜索</button>
-                        <!-- Batch Delete -->
-                        <button id="batchDeleteBtn" class="delete-btn" style="display:none; padding:10px 16px;">
-                            删除选中 (<span id="selectedCount">0</span>)
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
+                    <h2 style="margin: 0;">
+                        <span style="margin-right: 10px;">📋</span>
+                        链接管理
+                    </h2>
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <input type="text" id="searchInput" placeholder="🔍 搜索链接或备注..."
+                            style="padding: 12px 20px; width: 220px; border-radius: 99px; font-size: 14px;">
+                        <button id="searchBtn" class="btn-secondary" style="padding: 12px 20px;">
+                            搜索
+                        </button>
+                        <button id="batchDeleteBtn" class="delete-btn"
+                            style="display: none; padding: 12px 20px; border-radius: 99px;">
+                            🗑️ 删除选中 (<span id="selectedCount">0</span>)
                         </button>
                     </div>
                 </div>
 
                 <!-- Select All -->
                 <div id="selectAllContainer"
-                    style="display:none; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.05); margin-bottom:8px;">
+                    style="display: none; padding: 12px 0; border-bottom: 1px solid var(--gray-200); margin-bottom: 8px;">
                     <label
-                        style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; color:var(--text-secondary);">
-                        <input type="checkbox" id="selectAllCheckbox" style="width:18px; height:18px; cursor:pointer;">
-                        全选当前页
+                        style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: var(--text-secondary); font-weight: 500;">
+                        <input type="checkbox" id="selectAllCheckbox">
+                        ☑️ 全选当前页
                     </label>
                 </div>
 
@@ -112,19 +116,26 @@
 
                 <!-- Pagination -->
                 <div id="pagination"
-                    style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:20px; padding-top:16px; border-top:1px solid rgba(0,0,0,0.05);">
-                    <button id="prevPageBtn" class="btn-secondary" style="padding:8px 16px;">上一页</button>
-                    <span id="pageInfo" style="font-size:14px; color:var(--text-secondary);">第 1 页</span>
-                    <button id="nextPageBtn" class="btn-secondary" style="padding:8px 16px;">下一页</button>
+                    style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--gray-200);">
+                    <button id="prevPageBtn" class="btn-secondary" style="padding: 10px 20px;">
+                        ← 上一页
+                    </button>
+                    <span id="pageInfo" style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">
+                        第 1 页
+                    </span>
+                    <button id="nextPageBtn" class="btn-secondary" style="padding: 10px 20px;">
+                        下一页 →
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Footer inside container -->
+        <!-- Footer -->
         <footer>
-            <p>&copy; 2026 BayUrl Project. <a href="/">返回首页</a></p>
+            <p>© 2026 BayUrl · <a href="/">返回首页</a></p>
         </footer>
     </div>
+
     <script src="script.js"></script>
 </body>
 
