@@ -1,4 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Utils: Toast System ---
+    function showToast(message, type = 'success') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+
+        container.appendChild(toast);
+
+        // Auto remove
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            toast.style.transition = 'all 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
     // URL Shortener Logic
     const shortenForm = document.getElementById('shortenForm');
     if (shortenForm) {
@@ -17,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errorMsg.style.display = 'none';
             resultDiv.classList.remove('visible');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span style="opacity:0.8">处理中...</span>';
+            submitBtn.textContent = '处理中...';
 
             // Auto-fix URL protocol
             let rawUrl = urlInput.value.trim();
@@ -38,6 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (!response.ok) {
+                    if (response.status === 429) {
+                        throw new Error(data.message || '今日限额已满');
+                    }
                     throw new Error(data.message || '生成链接失败');
                 }
 
@@ -45,6 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 shortUrlLink.href = fullUrl;
                 shortUrlLink.textContent = fullUrl;
                 resultDiv.classList.add('visible');
+
+                showToast('短链接生成成功！');
 
                 // Clear inputs on success
                 urlInput.value = '';
@@ -54,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Shorten Error:", err);
                 errorMsg.textContent = err.message || "请求发生未知错误";
                 errorMsg.style.display = 'block';
+                showToast(err.message, 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = '缩短链接';
@@ -63,24 +93,24 @@ document.addEventListener('DOMContentLoaded', () => {
         copyBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(shortUrlLink.href).then(() => {
                 const originalText = copyBtn.textContent;
-                copyBtn.textContent = '✨ 已复制';
-                copyBtn.style.borderColor = 'var(--success-color)';
-                copyBtn.style.color = 'var(--success-color)';
+                copyBtn.textContent = '已复制';
+                copyBtn.style.background = 'var(--primary)';
+                copyBtn.style.color = '#fff';
+
+                showToast('链接已复制到剪贴板');
 
                 setTimeout(() => {
                     copyBtn.textContent = originalText;
-                    copyBtn.style.borderColor = '';
+                    copyBtn.style.background = '';
                     copyBtn.style.color = '';
                 }, 2000);
             });
         });
     }
 
-    // Admin Dashboard Logic (Keep original logic but adapt to new styles if needed later)
-    // For now, the existing logic is sufficient as it shares basic classes.
+    // Admin Dashboard Logic
     const adminLogin = document.getElementById('adminLogin');
     if (adminLogin) {
-        // ... (existing admin logic can remain mostly same, just ensuring selectors match)
         const dashboard = document.getElementById('dashboard');
         const loginForm = document.getElementById('loginForm');
         const tokenInput = document.getElementById('tokenInput');
@@ -112,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         加载失败: ${err.message}<br>
                         <small style="color:#666">请检查 Cloudflare 后台 D1 数据库是否初始化成功</small>
                     </div>`;
-                    showDashboard(); // Force show dashboard to display the error
+                    showDashboard();
                 }
             }
         };
@@ -127,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="link-item">
                     <div class="link-info">
                         <a href="/${link.slug}" target="_blank" class="link-slug">/${link.slug}</a>
-                        <div class="link-origin" title="${link.url}">${link.url}</div>
+                        <a href="${link.url}" target="_blank" class="link-origin" title="${link.url}">${link.url}</a>
                         <div class="link-meta">
                             ${link.visits || 0} 次访问 • ${new Date(link.created_at * 1000).toLocaleDateString()}
                         </div>
@@ -138,10 +168,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const showDashboard = () => {
-            adminLogin.classList.add('hidden'); // Ensure CSS has .hidden { display: none }
+            adminLogin.classList.add('hidden');
             dashboard.classList.remove('hidden');
-            if (dashboard.classList.contains('hidden')) dashboard.style.display = 'block'; // Fallback
-            if (adminLogin.classList.contains('hidden')) adminLogin.style.display = 'none'; // Fallback
+            if (dashboard.classList.contains('hidden')) dashboard.style.display = 'block';
+            if (adminLogin.classList.contains('hidden')) adminLogin.style.display = 'none';
         };
 
         const logout = () => {
@@ -150,6 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
             location.reload();
         };
 
+        // Attach to window for onclick access
         window.deleteLink = async (id) => {
             if (!confirm('确定要删除吗？')) return;
             try {
@@ -157,9 +188,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     method: 'DELETE',
                     headers: { 'Admin-Token': authToken }
                 });
-                if (response.ok) loadLinks();
+                if (response.ok) {
+                    showToast('链接已删除');
+                    loadLinks();
+                    loadDashboard(); // Reload stats
+                } else {
+                    showToast('删除失败', 'error');
+                }
             } catch (err) {
-                alert('操作失败');
+                showToast('操作失败', 'error');
             }
         };
 
@@ -171,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (logoutBtn) logoutBtn.addEventListener('click', logout);
+
         if (authToken) {
             loadLinks();
             loadDashboard();
@@ -184,15 +222,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch('/api/dashboard', {
                     headers: { 'Admin-Token': authToken }
                 });
-                if (!response.ok) return; // Silent fail for duplicate calls or auth issues handled elsewhere
+                if (!response.ok) return;
 
                 const data = await response.json();
 
-                // Update stats cards
                 document.getElementById('todayVisits').textContent = data.today.visits;
                 document.getElementById('todayLinks').textContent = data.today.links;
 
-                // Render Chart
                 renderChart(data.trend);
             } catch (err) {
                 console.error("Dashboard Error:", err);
@@ -211,11 +247,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Settings Form Handler
         const settingsForm = document.getElementById('settingsForm');
         if (settingsForm) {
             settingsForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const btn = settingsForm.querySelector('button');
+                const originalText = btn.textContent;
+                btn.textContent = '保存中...';
+                btn.disabled = true;
+
                 const limit = parseInt(document.getElementById('dailyLimitInput').value);
                 try {
                     const response = await fetch('/api/settings', {
@@ -227,12 +267,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         body: JSON.stringify({ daily_limit: limit })
                     });
                     if (response.ok) {
-                        alert('设置已保存');
+                        showToast('系统设置已更新');
                     } else {
-                        alert('保存失败');
+                        showToast('保存失败', 'error');
                     }
                 } catch (err) {
-                    alert('保存错误: ' + err.message);
+                    showToast('保存错误: ' + err.message, 'error');
+                } finally {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
                 }
             });
         }
@@ -241,19 +284,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const ctx = document.getElementById('trendChart');
             if (!ctx) return;
 
-            // Destroy existing chart if any (simple implicit check via window prop if strictly needed, but let's assume reload on login)
+            // Destroy existing chart if any
+            if (window.myTrendChart) {
+                window.myTrendChart.destroy();
+            }
 
-            new Chart(ctx, {
+            window.myTrendChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: trendData.map(d => new Date(d.date).toLocaleDateString()),
                     datasets: [{
                         label: '每日访问量',
                         data: trendData.map(d => d.visits),
-                        borderColor: '#0071e3',
-                        backgroundColor: 'rgba(0, 113, 227, 0.1)',
+                        borderColor: '#0070f3',
+                        backgroundColor: 'rgba(0, 112, 243, 0.1)',
                         fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     }]
                 },
                 options: {
@@ -263,8 +311,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         legend: { display: false }
                     },
                     scales: {
-                        y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
-                        x: { grid: { display: false } }
+                        y: {
+                            beginAtZero: true,
+                            border: { display: false },
+                            grid: { borderDash: [4, 4], color: '#eee' },
+                            ticks: { font: { family: 'Inter' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter' } }
+                        }
                     }
                 }
             });
