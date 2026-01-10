@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Auto remove
         setTimeout(() => {
             toast.style.opacity = '0';
-            toast.style.transform = 'translateX(100%)';
-            toast.style.transition = 'all 0.3s ease';
+            toast.style.transform = 'translateY(-20px) scale(0.9)';
+            toast.style.transition = 'all 0.3s cubic-bezier(0.32, 0, 0.67, 0)';
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
