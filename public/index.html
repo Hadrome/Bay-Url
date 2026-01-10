@@ -28,6 +28,10 @@
                 </div>
 
                 <button type="submit">缩短链接</button>
+
+                <!-- Turnstile Widget Container -->
+                <div id="turnstile-widget"
+                    style="margin-top: 16px; min-height: 65px; display: flex; justify-content: center;"></div>
             </form>
 
             <div id="result" class="result">
@@ -42,6 +46,7 @@
         </footer>
     </div>
 
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"></script>
     <script src="script.js"></script>
     <style>
         .hidden {

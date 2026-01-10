@@ -23,6 +23,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
+    // --- Turnstile Logic ---
+    let turnstileToken = null;
+    let turnstileWidgetId = null;
+
+    async function initTurnstile() {
+        try {
+            const res = await fetch('/api/config');
+            const config = await res.json();
+
+            if (config.turnstile_site_key && window.turnstile) {
+                const widgetContainer = document.getElementById('turnstile-widget');
+                if (widgetContainer) {
+                    turnstileWidgetId = turnstile.render('#turnstile-widget', {
+                        sitekey: config.turnstile_site_key,
+                        callback: function (token) {
+                            console.log('Turnstile Verified');
+                            turnstileToken = token;
+                        },
+                        'expired-callback': function () {
+                            turnstileToken = null;
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+            console.error("Failed to load Turnstile config", e);
+        }
+    }
+
+    // Call init if on index page
+    if (document.getElementById('turnstile-widget')) {
+        initTurnstile();
+    }
+
     // URL Shortener Logic
     const shortenForm = document.getElementById('shortenForm');
     if (shortenForm) {
@@ -55,7 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         url: rawUrl,
-                        slug: slugInput.value.trim() || undefined
+                        slug: slugInput.value.trim() || undefined,
+                        turnstileToken: turnstileToken // Send token
                     })
                 });
 
@@ -64,6 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) {
                     if (response.status === 429) {
                         throw new Error(data.message || '今日限额已满');
+                    }
+                    // Reset Turnstile on failure if widget exists
+                    if (turnstileWidgetId !== null && window.turnstile) {
+                        turnstile.reset(turnstileWidgetId);
+                        turnstileToken = null;
                     }
                     throw new Error(data.message || '生成链接失败');
                 }
@@ -78,6 +118,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Clear inputs on success
                 urlInput.value = '';
                 slugInput.value = '';
+                // Reset Turnstile
+                if (turnstileWidgetId !== null && window.turnstile) {
+                    turnstile.reset(turnstileWidgetId);
+                    turnstileToken = null;
+                }
 
             } catch (err) {
                 console.error("Shorten Error:", err);
@@ -250,6 +295,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.retention_days !== undefined) {
                     document.getElementById('retentionDaysInput').value = data.retention_days;
                 }
+                if (data.turnstile_site_key !== undefined) {
+                    document.getElementById('turnstileSiteKeyInput').value = data.turnstile_site_key;
+                }
+                if (data.turnstile_secret_key !== undefined) {
+                    document.getElementById('turnstileSecretKeyInput').value = data.turnstile_secret_key;
+                }
             } catch (err) {
                 console.error("Settings Error:", err);
             }
@@ -265,6 +316,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.disabled = true;
 
                 const limit = parseInt(document.getElementById('dailyLimitInput').value);
+                const turnstileSiteKey = document.getElementById('turnstileSiteKeyInput').value.trim();
+                const turnstileSecretKey = document.getElementById('turnstileSecretKeyInput').value.trim();
+
                 try {
                     const response = await fetch('/api/settings', {
                         method: 'POST',
@@ -272,7 +326,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             'Content-Type': 'application/json',
                             'Admin-Token': authToken
                         },
-                        body: JSON.stringify({ daily_limit: limit })
+                        body: JSON.stringify({
+                            daily_limit: limit,
+                            turnstile_site_key: turnstileSiteKey,
+                            turnstile_secret_key: turnstileSecretKey
+                        })
                     });
                     if (response.ok) {
                         showToast('系统设置已更新');

@@ -78,40 +78,64 @@
                                 <button type="submit" style="width:auto; padding:10px 16px;">保存</button>
                             </div>
                         </div>
-                    </form>
                 </div>
 
-                <!-- Data Maintenance -->
-                <div class="settings-panel" style="margin-bottom:0; height:100%;">
-                    <h3>数据维护</h3>
-                    <form id="cleanForm" style="margin-top:15px;">
-                        <div style="margin-bottom:12px;">
-                            <label
-                                style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:4px;">保留最近
-                                X 天的短链 (过期删除)</label>
-                            <div style="display:flex; gap:8px;">
-                                <input type="number" id="retentionDaysInput" min="1" value="30" style="padding:10px;">
-                                <button type="submit" class="btn-secondary"
-                                    style="width:auto; padding:10px 16px; background:rgba(255,59,48,0.1); color:var(--system-red);">清理</button>
-                            </div>
+                <div
+                    style="margin-bottom:12px; margin-top: 15px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 15px;">
+                    <label
+                        style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:8px; font-weight:600;">Cloudflare
+                        Turnstile (验证码)</label>
+
+                    <div style="margin-bottom: 8px;">
+                        <label
+                            style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:4px;">Site
+                            Key (公钥)</label>
+                        <input type="text" id="turnstileSiteKeyInput" placeholder="0x4AAAA..."
+                            style="padding:10px; width:100%; font-family:monospace; font-size:12px;">
+                    </div>
+
+                    <div style="margin-bottom: 8px;">
+                        <label
+                            style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:4px;">Secret
+                            Key (私钥)</label>
+                        <input type="password" id="turnstileSecretKeyInput" placeholder="0x4AAAA..."
+                            style="padding:10px; width:100%; font-family:monospace; font-size:12px;">
+                    </div>
+                </div>
+                </form>
+            </div>
+
+            <!-- Data Maintenance -->
+            <div class="settings-panel" style="margin-bottom:0; height:100%;">
+                <h3>数据维护</h3>
+                <form id="cleanForm" style="margin-top:15px;">
+                    <div style="margin-bottom:12px;">
+                        <label
+                            style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:4px;">保留最近
+                            X 天的短链 (过期删除)</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="number" id="retentionDaysInput" min="1" value="30" style="padding:10px;">
+                            <button type="submit" class="btn-secondary"
+                                style="width:auto; padding:10px 16px; background:rgba(255,59,48,0.1); color:var(--system-red);">清理</button>
                         </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="admin-header" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
-                <h3>链接列表</h3>
-            </div>
-
-            <div id="linkList" class="link-list">
-                <!-- Links will be inserted here -->
+                    </div>
+                </form>
             </div>
         </div>
 
-        <footer>
-            <p>&copy; 2026 BayUrl Project. <a href="/"
-                    style="color: var(--text-primary); text-decoration: none;">返回首页</a></p>
-        </footer>
+        <div class="admin-header" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
+            <h3>链接列表</h3>
+        </div>
+
+        <div id="linkList" class="link-list">
+            <!-- Links will be inserted here -->
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 BayUrl Project. <a href="/" style="color: var(--text-primary); text-decoration: none;">返回首页</a>
+        </p>
+    </footer>
     </div>
     <script src="script.js"></script>
 </body>
