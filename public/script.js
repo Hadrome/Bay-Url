@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 console.error("Load Links Error:", err);
                 if (err.message === '未授权') {
-                    alert("Token 错误或过期，请重新登录");
+                    showToast("Token 错误或过期，请重新登录", "error");
                     logout();
                 } else {
                     linkList.innerHTML = `<div style="text-align:center;color:red;padding:20px;">

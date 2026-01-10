@@ -126,7 +126,7 @@ npx wrangler d1 create bay-url-db
 [[d1_databases]]
 binding = "DB"
 database_name = "bay-url-db"
-database_id = "替换-为你-复制-的-ID"
+database_id = "替换为你复制的ID"
 ```
 
 #### 3. 初始化表结构
@@ -166,4 +166,4 @@ npm run dev
 
 ## 📄 License
 
-MIT © [Your Name]
+MIT © [BayMaxen]
