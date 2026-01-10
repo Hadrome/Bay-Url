@@ -1,45 +1,51 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>云链 - 极简短链接服务</title>
+    <title>云链 BayUrl</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
         <div class="card">
-            <h1>云链</h1>
+            <h1>BayUrl</h1>
             <p class="subtitle">Cloudflare 驱动的极简短链服务</p>
-            
+
             <form id="shortenForm">
                 <div class="form-group">
-                    <label for="urlInput">目标链接</label>
-                    <input type="url" id="urlInput" placeholder="https://example.com/very-long-url..." required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="slugInput">自定义短码 (可选)</label>
-                    <input type="text" id="slugInput" placeholder="custom-name" pattern="[a-zA-Z0-9-_]+" maxlength="20">
+                    <input type="text" id="urlInput" placeholder="在此输入长链接 (如 google.com)" required autocomplete="off">
+                    <div id="errorMsg" class="error-message"></div>
                 </div>
 
-                <div id="errorMsg" class="error-message"></div>
-                
+                <div class="form-group">
+                    <input type="text" id="slugInput" placeholder="自定义后缀 (可选)" pattern="[a-zA-Z0-9-_]+" maxlength="20"
+                        autocomplete="off">
+                </div>
+
                 <button type="submit">缩短链接</button>
             </form>
 
             <div id="result" class="result">
-                <p>生成成功！</p>
+                <span class="success-icon">🎉</span>
                 <a href="#" id="shortUrl" class="short-url" target="_blank"></a>
                 <button id="copyBtn" class="copy-btn">复制链接</button>
             </div>
         </div>
-        
+
         <footer>
-            <p>&copy; 2026 BayUrl Project. All rights reserved.</p>
-            <p><a href="/admin.html" style="color: var(--text-muted); text-decoration: none;">管理后台</a></p>
+            <p>&copy; 2026 BayUrl. <a href="/admin.html">管理后台</a></p>
         </footer>
     </div>
+
     <script src="script.js"></script>
+    <style>
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </body>
+
 </html>

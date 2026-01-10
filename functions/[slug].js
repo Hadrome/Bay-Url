@@ -1,12 +1,19 @@
 export async function onRequest(context) {
-    const { request, env, params } = context;
+    const { request, env, params, next } = context;
     const slug = params.slug;
 
+    // 1. If root path, pass to static assets (index.html)
     if (!slug) {
-        return new Response("Not Found", { status: 404 });
+        return next();
     }
 
-    // Query the database for the slug
+    // 2. If valid filename (has extension), pass to static assets
+    // This prevents DB lookups for style.css, script.js, favicon.ico, etc.
+    if (slug.includes('.')) {
+        return next();
+    }
+
+    // 3. Query the database for the slug
     const stmt = env.DB.prepare("SELECT * FROM links WHERE slug = ?");
     const link = await stmt.bind(slug).first();
 
@@ -19,7 +26,7 @@ export async function onRequest(context) {
         return new Response("Short URL expired", { status: 410 });
     }
 
-    // Async logging (don't await to speed up response)
+    // Async logging
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
     const userAgent = request.headers.get("User-Agent") || "unknown";
     const referer = request.headers.get("Referer") || "unknown";
