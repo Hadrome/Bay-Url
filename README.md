@@ -61,10 +61,23 @@
 3. **重要：初始化表结构**。
    目前 Cloudflare Pages 界面暂不支持直接执行 SQL 文件。你需要通过 Cloudflare 网页控制台手动执行 `schema.sql` 的内容，或者使用本地 Wrangler CLI（见下方说明）。
    
-   **简便方法（网页控制台）：**
-   1. 进入你创建的 D1 数据库详情页 -> **Console** 标签。
-   2. 复制本项目 `schema.sql` 文件中的内容。
-   3. 粘贴到控制台输入框，点击 **Execute**。
+   **简便方法（网页控制台执行 SQL）：**
+   Cloudflare 网页控制台通常需要单行 SQL。请依次复制以下 **3条** 命令到 D1 控制台执行：
+
+   **命令 1 (创建 links 表):**
+   ```sql
+   CREATE TABLE IF NOT EXISTS links (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT NOT NULL, slug TEXT NOT NULL UNIQUE, created_at INTEGER DEFAULT (unixepoch()), expires_at INTEGER);
+   ```
+
+   **命令 2 (创建 visits 表):**
+   ```sql
+   CREATE TABLE IF NOT EXISTS visits (id INTEGER PRIMARY KEY AUTOINCREMENT, link_id INTEGER NOT NULL, ip TEXT, user_agent TEXT, referer TEXT, visit_time INTEGER DEFAULT (unixepoch()), FOREIGN KEY (link_id) REFERENCES links(id) ON DELETE CASCADE);
+   ```
+
+   **命令 3 (创建索引):**
+   ```sql
+   CREATE INDEX IF NOT EXISTS idx_slug ON links(slug); CREATE INDEX IF NOT EXISTS idx_link_id ON visits(link_id);
+   ```
 
 #### 5. 设置管理员密码
 1. 回到 Pages 项目 -> **Settings** -> **Environment variables**。
