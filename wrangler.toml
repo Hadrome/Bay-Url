@@ -7,3 +7,4 @@ pages_build_output_dir = "public"
 binding = "DB"
 database_name = "bay-url-db"
 database_id = "92c8b9ca-ea37-4180-87cc-8bbbdbcc3d06"
+
