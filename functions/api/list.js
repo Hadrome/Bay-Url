@@ -9,7 +9,10 @@ export async function onRequestGet(context) {
         l.id, 
         l.url, 
         l.slug, 
-        l.created_at, 
+        l.created_at,
+        l.expires_at, 
+        l.max_visits,
+        l.note, 
         COUNT(v.id) as visits 
       FROM links l
       LEFT JOIN visits v ON l.id = v.link_id

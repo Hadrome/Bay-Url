@@ -23,44 +23,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // --- Turnstile Logic ---
-    let turnstileToken = null;
-    let turnstileWidgetId = null;
-
-    async function initTurnstile() {
-        try {
-            const res = await fetch('/api/config');
-            const config = await res.json();
-
-            const widgetContainer = document.getElementById('turnstile-widget');
-
-            if (config.turnstile_site_key && window.turnstile) {
-                if (widgetContainer) {
-                    turnstileWidgetId = turnstile.render('#turnstile-widget', {
-                        sitekey: config.turnstile_site_key,
-                        callback: function (token) {
-                            console.log('Turnstile Verified');
-                            turnstileToken = token;
-                        },
-                        'expired-callback': function () {
-                            turnstileToken = null;
-                        }
-                    });
-                }
-            } else if (!config.turnstile_site_key) {
-                const widgetContainer = document.getElementById('turnstile-widget');
-                if (widgetContainer) {
-                    widgetContainer.innerHTML = '<div style="color:red; font-size:12px; padding:10px;">⚠️ 验证码配置缺失 (Site Key)</div>';
-                }
-            }
-        } catch (e) {
-            console.error("Failed to load Turnstile config", e);
+    // --- Utils: Toast System ---
+    function showToast(message, type = 'success') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
         }
-    }
 
-    // Call init if on index page
-    if (document.getElementById('turnstile-widget')) {
-        initTurnstile();
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+
+        container.appendChild(toast);
+
+        // Auto remove
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px) scale(0.9)';
+            toast.style.transition = 'all 0.3s cubic-bezier(0.32, 0, 0.67, 0)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 
     // URL Shortener Logic
@@ -96,8 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({
                         url: rawUrl,
                         slug: slugInput.value.trim() || undefined,
-                        expiration: document.getElementById('expirationSelect').value, // Send expiration
-                        turnstileToken: turnstileToken
+                        expiration: document.getElementById('expirationSelect').value // Send expiration
                     })
                 });
 
@@ -106,11 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) {
                     if (response.status === 429) {
                         throw new Error(data.message || '今日限额已满');
-                    }
-                    // Reset Turnstile on failure if widget exists
-                    if (turnstileWidgetId !== null && window.turnstile) {
-                        turnstile.reset(turnstileWidgetId);
-                        turnstileToken = null;
                     }
                     throw new Error(data.message || '生成链接失败');
                 }
@@ -132,11 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Clear inputs on success
                 urlInput.value = '';
                 slugInput.value = '';
-                // Reset Turnstile
-                if (turnstileWidgetId !== null && window.turnstile) {
-                    turnstile.reset(turnstileWidgetId);
-                    turnstileToken = null;
-                }
 
             } catch (err) {
                 console.error("Shorten Error:", err);
@@ -221,10 +194,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${link.visits || 0} 次访问 • ${new Date(link.created_at * 1000).toLocaleDateString()}
                             ${link.max_visits ? ' • <span class="badge">阅后即焚</span>' : ''}
                             ${link.expires_at ? ` • 📅 ${new Date(link.expires_at * 1000).toLocaleDateString()} 过期` : ''}
+                            ${link.note ? `<div style="margin-top:4px; font-size:12px; color:#666;">📝 ${link.note}</div>` : ''}
                         </div>
                     </div>
                     <div class="actions" style="display:flex; gap:8px;">
-                        <button onclick="updateLink(${link.id})" class="edit-btn" style="background:rgba(0,122,255,0.1); color:#007aff;">设置有效期</button>
+                        <button onclick="updateNote(${link.id}, '${link.note || ''}')" class="note-btn" style="background:rgba(255,149,0,0.1); color:#ff9500;">备注</button>
+                        <button onclick="updateLink(${link.id})" class="edit-btn" style="background:rgba(0,122,255,0.1); color:#007aff;">有效期</button>
                         <button onclick="deleteLink(${link.id})" class="delete-btn">删除</button>
                     </div>
                 </div>
@@ -266,6 +241,26 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
 
+        window.updateNote = async (id, currentNote) => {
+            const newNote = prompt("修改备注：", currentNote);
+            if (newNote === null) return;
+
+            try {
+                const response = await fetch('/api/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Admin-Token': authToken },
+                    body: JSON.stringify({ id, action: 'set_note', value: newNote })
+                });
+                if (response.ok) {
+                    showToast('备注已更新');
+                    loadLinks();
+                } else {
+                    showToast('更新失败', 'error');
+                }
+            } catch (e) {
+                showToast('请求失败', 'error');
+            }
+        };
 
         window.updateLink = async (id) => {
             const input = prompt("设置有效期：\n输入天数 (如 30)\n输入 0 代表永久有效\n输入 -1 代表阅后即焚 (1次访问)", "30");

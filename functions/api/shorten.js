@@ -2,7 +2,7 @@ export async function onRequestPost(context) {
     const { request, env } = context;
 
     try {
-        const { url, slug: customSlug, turnstileToken, expiration } = await request.json();
+        const { url, slug: customSlug, expiration } = await request.json();
 
         if (!url) {
             return new Response(JSON.stringify({ message: "URL is required" }), {
@@ -10,44 +10,6 @@ export async function onRequestPost(context) {
                 headers: { "Content-Type": "application/json" }
             });
         }
-
-        // --- Turnstile Verification ---
-        try {
-            // Read from Environment Variables
-            const turnstileSecret = env.TURNSTILE_SECRET_KEY || null;
-
-            if (turnstileSecret) {
-                if (!turnstileToken) {
-                    return new Response(JSON.stringify({ message: "Turnstile validation required" }), {
-                        status: 403,
-                        headers: { "Content-Type": "application/json" }
-                    });
-                }
-
-                const formData = new FormData();
-                formData.append('secret', turnstileSecret);
-                formData.append('response', turnstileToken);
-                formData.append('remoteip', request.headers.get('CF-Connecting-IP'));
-
-                const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-                    body: formData,
-                    method: 'POST',
-                });
-
-                const outcome = await result.json();
-                if (!outcome.success) {
-                    return new Response(JSON.stringify({ message: "Turnstile verification failed" }), {
-                        status: 403,
-                        headers: { "Content-Type": "application/json" }
-                    });
-                }
-            }
-        } catch (e) {
-            console.error("Turnstile check error", e);
-            // Fail open or closed? Let's fail closed for security, or log checks.
-            // For now, let's just log and proceed if DB fails, but if verification fails we returned above.
-        }
-        // ------------------------------
 
         // --- Check Daily Limit ---
         try {

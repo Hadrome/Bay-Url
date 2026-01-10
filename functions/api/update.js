@@ -24,6 +24,8 @@ export async function onRequestPost(context) {
             stmt = env.DB.prepare("UPDATE links SET expires_at = ?, max_visits = NULL WHERE id = ?").bind(expires_at, id);
         } else if (action === 'set_1_time') {
             stmt = env.DB.prepare("UPDATE links SET expires_at = NULL, max_visits = 1 WHERE id = ?").bind(id);
+        } else if (action === 'set_note') {
+            stmt = env.DB.prepare("UPDATE links SET note = ? WHERE id = ?").bind(value, id);
         } else {
             return new Response(JSON.stringify({ error: "Invalid action" }), { status: 400 });
         }

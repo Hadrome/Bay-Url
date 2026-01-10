@@ -88,11 +88,7 @@
    - **Variable name**: `ADMIN_TOKEN`
    - **Value**: 设置一个复杂的密码（用于登录管理后台）
 3. 点击 **Save**。
-4. **(可选) 启用 Turnstile 验证码**：
-   由于项目在 GitHub 公开，为防止秘钥泄露，请在 Cloudflare Dashboard 的 "Settings -> Environment variables" 中配置：
-   - **`TURNSTILE_SITE_KEY`** (公钥)：即使 Cloudflare 强制显示为"加密 (Encrypted)"也没关系，后端会自动读取并正确传递给前端。
-   - **`TURNSTILE_SECRET_KEY`** (私钥)：必须加密。
-   *配置并部署后，首页会自动显示验证码组件。*
+
 
 
 🎉 **部署完成！** 访问你的 `*.pages.dev` 域名即可使用。
