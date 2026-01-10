@@ -115,6 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 showToast('短链接生成成功！');
 
+                // Auto Copy
+                navigator.clipboard.writeText(fullUrl).then(() => {
+                    showToast('已自动复制到剪贴板 ✅');
+                }).catch(err => {
+                    console.error('Auto copy failed:', err);
+                });
+
                 // Clear inputs on success
                 urlInput.value = '';
                 slugInput.value = '';

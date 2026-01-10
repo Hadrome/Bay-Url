@@ -77,7 +77,7 @@
    CREATE INDEX IF NOT EXISTS idx_slug ON links(slug); CREATE INDEX IF NOT EXISTS idx_link_id ON visits(link_id);
    ```
 
-   **命令 4 (创建 settings 表 - 新功能):**
+   **命令 4 (创建 settings 表):**
    ```sql
    CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT); INSERT OR IGNORE INTO settings (key, value) VALUES ('daily_limit', '100');
    ```
@@ -89,7 +89,7 @@
    - **Value**: 设置一个复杂的密码（用于登录管理后台）
 3. 点击 **Save**。
 4. **(可选) 启用 Turnstile 验证码**：
-   如果需要防滥用保护，由于项目在 GitHub 公开，为防止秘钥泄露，请在 Cloudflare Dashboard 的 "Settings -> Environment variables" 中配置：
+   由于项目在 GitHub 公开，为防止秘钥泄露，请在 Cloudflare Dashboard 的 "Settings -> Environment variables" 中配置：
    - **`TURNSTILE_SITE_KEY`** (公钥)：即使 Cloudflare 强制显示为"加密 (Encrypted)"也没关系，后端会自动读取并正确传递给前端。
    - **`TURNSTILE_SECRET_KEY`** (私钥)：必须加密。
    *配置并部署后，首页会自动显示验证码组件。*
