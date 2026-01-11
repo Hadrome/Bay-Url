@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/logo.png" alt="BayUrl Logo" width="120" />
+  <img src="public/logo.png" alt="BayUrl Logo" width="180" />
 </p>
 
 <h1 align="center">BayUrl</h1>
@@ -97,8 +97,8 @@ CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT); INSERT O
 
 ```bash
 # 克隆项目
-git clone https://github.com/<your-username>/bay-url.git
-cd bay-url
+git clone https://github.com/<your-username>/Bay-Url.git
+cd Bay-Url
 
 # 安装依赖
 npm install
