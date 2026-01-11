@@ -74,45 +74,51 @@
             </div>
 
             <!-- 访问记录卡片 -->
-            <div class="card" style="margin-top: 24px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0;">
+            <div class="card collapsible-card" style="margin-top: 24px;">
+                <div class="collapsible-header" data-target="visitsContent">
+                    <h2 style="margin: 0; display: flex; align-items: center;">
                         <span style="margin-right: 10px;">👀</span>
                         访问记录
+                        <span class="collapse-icon">▼</span>
                     </h2>
-                    <button id="refreshVisitsBtn" class="btn-secondary" style="padding: 10px 16px;">
+                    <button id="refreshVisitsBtn" class="btn-secondary" style="padding: 10px 16px;"
+                        onclick="event.stopPropagation()">
                         🔄 刷新
                     </button>
                 </div>
 
-                <div id="visitsList" class="visits-list">
-                    <!-- 访问记录在这里渲染 -->
-                </div>
+                <div id="visitsContent" class="collapsible-content">
+                    <div id="visitsList" class="visits-list">
+                        <!-- 访问记录在这里渲染 -->
+                    </div>
 
-                <!-- 访问记录分页 -->
-                <div id="visitsPagination"
-                    style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--gray-200);">
-                    <button id="visitsPrevBtn" class="btn-secondary" style="padding: 10px 20px;">
-                        ← 上一页
-                    </button>
-                    <span id="visitsPageInfo" style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">
-                        第 1 页
-                    </span>
-                    <button id="visitsNextBtn" class="btn-secondary" style="padding: 10px 20px;">
-                        下一页 →
-                    </button>
+                    <!-- 访问记录分页 -->
+                    <div id="visitsPagination"
+                        style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--gray-200);">
+                        <button id="visitsPrevBtn" class="btn-secondary" style="padding: 10px 20px;">
+                            ← 上一页
+                        </button>
+                        <span id="visitsPageInfo"
+                            style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">
+                            第 1 页
+                        </span>
+                        <button id="visitsNextBtn" class="btn-secondary" style="padding: 10px 20px;">
+                            下一页 →
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- Link List Card -->
-            <div class="card" style="margin-top: 24px;">
-                <div
-                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
-                    <h2 style="margin: 0;">
+            <div class="card collapsible-card" style="margin-top: 24px;">
+                <div class="collapsible-header" data-target="linksContent">
+                    <h2 style="margin: 0; display: flex; align-items: center;">
                         <span style="margin-right: 10px;">📋</span>
                         链接管理
+                        <span class="collapse-icon">▼</span>
                     </h2>
-                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"
+                        onclick="event.stopPropagation()">
                         <input type="text" id="searchInput" placeholder="🔍 搜索链接或备注..."
                             style="padding: 12px 20px; width: 220px; border-radius: 99px; font-size: 14px;">
                         <button id="searchBtn" class="btn-secondary" style="padding: 12px 20px;">
@@ -125,32 +131,34 @@
                     </div>
                 </div>
 
-                <!-- Select All -->
-                <div id="selectAllContainer"
-                    style="display: none; padding: 12px 0; border-bottom: 1px solid var(--gray-200); margin-bottom: 8px;">
-                    <label
-                        style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: var(--text-secondary); font-weight: 500;">
-                        <input type="checkbox" id="selectAllCheckbox">
-                        ☑️ 全选当前页
-                    </label>
-                </div>
+                <div id="linksContent" class="collapsible-content">
+                    <!-- Select All -->
+                    <div id="selectAllContainer"
+                        style="display: none; padding: 12px 0; border-bottom: 1px solid var(--gray-200); margin-bottom: 8px;">
+                        <label
+                            style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: var(--text-secondary); font-weight: 500;">
+                            <input type="checkbox" id="selectAllCheckbox">
+                            ☑️ 全选当前页
+                        </label>
+                    </div>
 
-                <div id="linkList" class="link-list">
-                    <!-- Links will be inserted here -->
-                </div>
+                    <div id="linkList" class="link-list">
+                        <!-- Links will be inserted here -->
+                    </div>
 
-                <!-- Pagination -->
-                <div id="pagination"
-                    style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--gray-200);">
-                    <button id="prevPageBtn" class="btn-secondary" style="padding: 10px 20px;">
-                        ← 上一页
-                    </button>
-                    <span id="pageInfo" style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">
-                        第 1 页
-                    </span>
-                    <button id="nextPageBtn" class="btn-secondary" style="padding: 10px 20px;">
-                        下一页 →
-                    </button>
+                    <!-- Pagination -->
+                    <div id="pagination"
+                        style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--gray-200);">
+                        <button id="prevPageBtn" class="btn-secondary" style="padding: 10px 20px;">
+                            ← 上一页
+                        </button>
+                        <span id="pageInfo" style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">
+                            第 1 页
+                        </span>
+                        <button id="nextPageBtn" class="btn-secondary" style="padding: 10px 20px;">
+                            下一页 →
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

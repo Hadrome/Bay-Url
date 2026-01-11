@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Utils: Collapsible Cards ---
+    document.querySelectorAll('.collapsible-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const card = header.closest('.collapsible-card');
+            if (card) {
+                card.classList.toggle('collapsed');
+            }
+        });
+    });
+
     // --- Utils: Toast System ---
     function showToast(message, type = 'success') {
         let container = document.getElementById('toast-container');
