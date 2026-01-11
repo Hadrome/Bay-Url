@@ -9,6 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- Utils: HTML Escape (XSS Protection) ---
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        const div = document.createElement('div');
+        div.textContent = String(str);
+        return div.innerHTML;
+    }
+
     // --- Utils: Toast System ---
     function showToast(message, type = 'success') {
         let container = document.getElementById('toast-container');
@@ -191,30 +199,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            linkList.innerHTML = links.map(link => `
+            linkList.innerHTML = links.map(link => {
+                const safeSlug = escapeHtml(link.slug);
+                const safeUrl = escapeHtml(link.url);
+                const safeNote = escapeHtml(link.note || '');
+                // For onclick, we need to escape for JS string context too
+                const jsUrl = escapeHtml(link.url).replace(/'/g, "\\'");
+                const jsNote = safeNote.replace(/'/g, "\\'");
+
+                return `
                 <div class="link-item" data-id="${link.id}">
                     <div style="display:flex; align-items:flex-start; gap:12px; flex:1; min-width:0;">
                         <input type="checkbox" class="link-checkbox" data-id="${link.id}" 
                             style="width:18px; height:18px; margin-top:4px; cursor:pointer; flex-shrink:0;">
                         <div class="link-info">
-                            <a href="/${link.slug}" target="_blank" class="link-slug">/${link.slug}</a>
-                            <a href="${link.url}" target="_blank" class="link-origin" title="${link.url}">${link.url}</a>
+                            <a href="/${safeSlug}" target="_blank" class="link-slug">/${safeSlug}</a>
+                            <a href="${safeUrl}" target="_blank" class="link-origin" title="${safeUrl}">${safeUrl}</a>
                             <div class="link-meta">
                                 ${link.visits || 0} 次访问 • ${new Date(link.created_at * 1000).toLocaleDateString()}
                                 ${link.max_visits ? ' • <span class="badge">阅后即焚</span>' : ''}
                                 ${link.expires_at ? ` • 📅 ${new Date(link.expires_at * 1000).toLocaleDateString()} 过期` : ''}
-                                ${link.note ? `<div style="margin-top:4px; font-size:12px; color:#666;">📝 ${link.note}</div>` : ''}
+                                ${link.note ? `<div style="margin-top:4px; font-size:12px; color:#666;">📝 ${safeNote}</div>` : ''}
                             </div>
                         </div>
                     </div>
                     <div class="actions">
-                        <button onclick="updateOriginalUrl(${link.id}, '${link.url}')" class="edit-btn" style="background:rgba(88,86,214,0.1); color:#5856D6;">修改目标</button>
-                        <button onclick="updateNote(${link.id}, '${(link.note || '').replace(/'/g, "\\'")}')" class="note-btn" style="background:rgba(255,149,0,0.1); color:#ff9500;">备注</button>
+                        <button onclick="updateOriginalUrl(${link.id}, '${jsUrl}')" class="edit-btn" style="background:rgba(88,86,214,0.1); color:#5856D6;">修改目标</button>
+                        <button onclick="updateNote(${link.id}, '${jsNote}')" class="note-btn" style="background:rgba(255,149,0,0.1); color:#ff9500;">备注</button>
                         <button onclick="updateLink(${link.id})" class="edit-btn" style="background:rgba(0,122,255,0.1); color:#007aff;">有效期</button>
-                        <button onclick="deleteLink(${link.id})" class="delete-btn">删除</button>
+                        <button onclick="deleteLink(${link.id}, this)" class="delete-btn">删除</button>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             // 绑定复选框事件
             document.querySelectorAll('.link-checkbox').forEach(cb => {
@@ -351,22 +368,45 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Attach to window for onclick access
-        window.deleteLink = async (id) => {
+        window.deleteLink = async (id, btn) => {
             if (!confirm('确定要删除吗？')) return;
+
+            // Find the link item element for animation
+            const linkItem = document.querySelector(`.link-item[data-id="${id}"]`);
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '删除中...';
+            }
+
             try {
                 const response = await fetch(`/api/delete?id=${id}`, {
                     method: 'DELETE',
                     headers: { 'Admin-Token': authToken }
                 });
                 if (response.ok) {
+                    // Fade out animation before removing
+                    if (linkItem) {
+                        linkItem.style.transition = 'all 0.3s ease-out';
+                        linkItem.style.opacity = '0';
+                        linkItem.style.transform = 'translateX(-20px)';
+                        await new Promise(r => setTimeout(r, 300));
+                    }
                     showToast('链接已删除');
                     loadLinks(currentPage, searchQuery);
                     loadDashboard();
                 } else {
                     showToast('删除失败', 'error');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.textContent = '删除';
+                    }
                 }
             } catch (err) {
                 showToast('操作失败', 'error');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = '删除';
+                }
             }
         };
 
@@ -582,25 +622,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            visitsList.innerHTML = visits.map(v => `
+            visitsList.innerHTML = visits.map(v => {
+                const safeSlug = escapeHtml(v.slug);
+                const safeIp = escapeHtml(v.ip);
+                const safeDevice = escapeHtml(v.device);
+                const safeBrowser = escapeHtml(v.browser);
+                const safeReferer = escapeHtml(v.referer.length > 40 ? v.referer.substring(0, 40) + '...' : v.referer);
+                const safeTime = escapeHtml(v.visit_time);
+
+                return `
                 <div class="visit-item">
                     <div class="visit-info">
                         <div class="visit-slug">
                             <span class="visit-badge">🔗</span>
-                            <a href="/${v.slug}" target="_blank">/${v.slug}</a>
+                            <a href="/${safeSlug}" target="_blank">/${safeSlug}</a>
                         </div>
                         <div class="visit-details">
-                            <span class="visit-tag">📍 ${v.ip}</span>
-                            <span class="visit-tag">📱 ${v.device}</span>
-                            <span class="visit-tag">🌐 ${v.browser}</span>
+                            <span class="visit-tag">📍 ${safeIp}</span>
+                            <span class="visit-tag">📱 ${safeDevice}</span>
+                            <span class="visit-tag">🌐 ${safeBrowser}</span>
                         </div>
                         <div class="visit-meta">
-                            <span>⚡ 来源: ${v.referer.length > 40 ? v.referer.substring(0, 40) + '...' : v.referer}</span>
-                            <span>⏰ ${v.visit_time}</span>
+                            <span>⚡ 来源: ${safeReferer}</span>
+                            <span>⏰ ${safeTime}</span>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function renderVisitsPagination(pagination) {

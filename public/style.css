@@ -77,30 +77,36 @@ body {
     line-height: 1.5;
 }
 
-/* 极光背景 */
+/* 极光背景 - 性能优化版 */
 body::before {
     content: '';
     position: fixed;
-    top: -20%;
-    left: -20%;
-    right: -20%;
-    bottom: -20%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background:
-        radial-gradient(ellipse 60% 60% at 10% 10%, rgba(0, 122, 255, 0.4), transparent 60%),
-        radial-gradient(ellipse 50% 50% at 90% 20%, rgba(175, 82, 222, 0.35), transparent 60%),
-        radial-gradient(ellipse 55% 55% at 80% 80%, rgba(52, 199, 89, 0.25), transparent 60%),
-        radial-gradient(ellipse 45% 45% at 5% 75%, rgba(255, 149, 0, 0.2), transparent 60%);
+        radial-gradient(ellipse 60% 60% at 10% 10%, rgba(0, 122, 255, 0.35), transparent 50%),
+        radial-gradient(ellipse 50% 50% at 90% 20%, rgba(175, 82, 222, 0.30), transparent 50%),
+        radial-gradient(ellipse 55% 55% at 80% 80%, rgba(52, 199, 89, 0.20), transparent 50%),
+        radial-gradient(ellipse 45% 45% at 5% 75%, rgba(255, 149, 0, 0.15), transparent 50%);
+    filter: blur(40px);
+    /* 直接应用模糊，替代成本更高的 backdrop-filter */
     z-index: -2;
     animation: auroraMove 25s ease-in-out infinite alternate;
+    will-change: transform;
+    /* GPU 加速提示 */
+    contain: strict;
+    /* 布局隔离 */
 }
 
 @keyframes auroraMove {
     0% {
-        transform: translate(0, 0) rotate(0deg);
+        transform: translate(0, 0) scale(1);
     }
 
     100% {
-        transform: translate(3%, 2%) rotate(2deg);
+        transform: translate(2%, 1%) scale(1.02);
     }
 }
 
@@ -111,9 +117,8 @@ body::after {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(60px);
-    -webkit-backdrop-filter: blur(60px);
+    background: rgba(255, 255, 255, 0.6);
+    /* 简单白色覆盖层，无模糊 */
     z-index: -1;
     pointer-events: none;
 }
