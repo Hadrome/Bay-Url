@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -56,11 +55,6 @@
                     </div>
                 </div>
 
-                <!-- Chart -->
-                <div class="chart-container">
-                    <canvas id="trendChart"></canvas>
-                </div>
-
                 <!-- Settings -->
                 <div class="settings-panel">
                     <h3>⚙️ 系统设置</h3>
@@ -76,6 +70,37 @@
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- 访问记录卡片 -->
+            <div class="card" style="margin-top: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">
+                        <span style="margin-right: 10px;">👀</span>
+                        访问记录
+                    </h2>
+                    <button id="refreshVisitsBtn" class="btn-secondary" style="padding: 10px 16px;">
+                        🔄 刷新
+                    </button>
+                </div>
+
+                <div id="visitsList" class="visits-list">
+                    <!-- 访问记录在这里渲染 -->
+                </div>
+
+                <!-- 访问记录分页 -->
+                <div id="visitsPagination"
+                    style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--gray-200);">
+                    <button id="visitsPrevBtn" class="btn-secondary" style="padding: 10px 20px;">
+                        ← 上一页
+                    </button>
+                    <span id="visitsPageInfo" style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">
+                        第 1 页
+                    </span>
+                    <button id="visitsNextBtn" class="btn-secondary" style="padding: 10px 20px;">
+                        下一页 →
+                    </button>
                 </div>
             </div>
 

@@ -442,8 +442,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 document.getElementById('todayVisits').textContent = data.today.visits;
                 document.getElementById('todayLinks').textContent = data.today.links;
-
-                renderChart(data.trend);
             } catch (err) {
                 console.error("Dashboard Error:", err);
             }
@@ -496,73 +494,102 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        function renderChart(trendData) {
-            const ctx = document.getElementById('trendChart');
-            if (!ctx) return;
+        // --- 访问记录功能 ---
+        let visitsPage = 1;
+        const visitsPageSize = 20;
+        const visitsList = document.getElementById('visitsList');
 
-            if (window.myTrendChart) {
-                window.myTrendChart.destroy();
+        async function loadVisits(page = 1) {
+            visitsPage = page;
+            try {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    pageSize: visitsPageSize.toString()
+                });
+
+                const response = await fetch(`/api/visits?${params}`, {
+                    headers: { 'Admin-Token': authToken }
+                });
+
+                if (!response.ok) {
+                    visitsList.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">加载失败</div>';
+                    return;
+                }
+
+                const result = await response.json();
+                renderVisits(result.data || []);
+                renderVisitsPagination(result.pagination);
+            } catch (err) {
+                console.error('Load Visits Error:', err);
+                visitsList.innerHTML = '<div style="text-align:center;color:red;padding:20px;">加载失败</div>';
+            }
+        }
+
+        function renderVisits(visits) {
+            if (!Array.isArray(visits) || visits.length === 0) {
+                visitsList.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">暂无访问记录</div>';
+                return;
             }
 
-            window.myTrendChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: trendData.length ? trendData.map(d => new Date(d.date).toLocaleDateString()) : ['今日'],
-                    datasets: [{
-                        label: '每日访问量',
-                        data: trendData.length ? trendData.map(d => d.visits) : [0],
-                        borderColor: '#007aff',
-                        backgroundColor: 'rgba(0, 122, 255, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#007aff',
-                        pointBorderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(0,0,0,0.8)',
-                            padding: 12,
-                            cornerRadius: 8,
-                            displayColors: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            border: { display: false },
-                            grid: {
-                                borderDash: [4, 4],
-                                color: 'rgba(0,0,0,0.05)',
-                                drawBorder: false
-                            },
-                            ticks: {
-                                font: { family: 'Inter', size: 11 },
-                                color: '#8e8e93',
-                                maxTicksLimit: 5
-                            }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                font: { family: 'Inter', size: 11 },
-                                color: '#8e8e93'
-                            }
-                        }
-                    }
-                }
+            visitsList.innerHTML = visits.map(v => `
+                <div class="visit-item">
+                    <div class="visit-info">
+                        <div class="visit-slug">
+                            <span class="visit-badge">🔗</span>
+                            <a href="/${v.slug}" target="_blank">/${v.slug}</a>
+                        </div>
+                        <div class="visit-details">
+                            <span class="visit-tag">📍 ${v.ip}</span>
+                            <span class="visit-tag">📱 ${v.device}</span>
+                            <span class="visit-tag">🌐 ${v.browser}</span>
+                        </div>
+                        <div class="visit-meta">
+                            <span>⚡ 来源: ${v.referer.length > 40 ? v.referer.substring(0, 40) + '...' : v.referer}</span>
+                            <span>⏰ ${v.visit_time}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderVisitsPagination(pagination) {
+            const prevBtn = document.getElementById('visitsPrevBtn');
+            const nextBtn = document.getElementById('visitsNextBtn');
+            const pageInfo = document.getElementById('visitsPageInfo');
+
+            if (!pagination) return;
+
+            pageInfo.textContent = `第 ${pagination.page} / ${pagination.totalPages} 页 (共 ${pagination.total} 条)`;
+            prevBtn.disabled = pagination.page <= 1;
+            nextBtn.disabled = pagination.page >= pagination.totalPages;
+        }
+
+        // 访问记录分页事件
+        const visitsPrevBtn = document.getElementById('visitsPrevBtn');
+        const visitsNextBtn = document.getElementById('visitsNextBtn');
+        const refreshVisitsBtn = document.getElementById('refreshVisitsBtn');
+
+        if (visitsPrevBtn) {
+            visitsPrevBtn.addEventListener('click', () => {
+                if (visitsPage > 1) loadVisits(visitsPage - 1);
             });
+        }
+        if (visitsNextBtn) {
+            visitsNextBtn.addEventListener('click', () => {
+                loadVisits(visitsPage + 1);
+            });
+        }
+        if (refreshVisitsBtn) {
+            refreshVisitsBtn.addEventListener('click', () => {
+                loadVisits(1);
+                loadDashboard();
+                showToast('已刷新');
+            });
+        }
+
+        // 登录后加载访问记录
+        if (authToken) {
+            loadVisits();
         }
     }
 });

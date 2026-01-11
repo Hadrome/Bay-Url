@@ -744,6 +744,98 @@ footer a:hover {
     color: var(--apple-blue);
 }
 
+/* Visits List - 访问记录列表 */
+.visits-list {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-l);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.visit-item {
+    padding: 16px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    border-bottom: 1px solid var(--gray-200);
+    transition: all 0.2s var(--ease-out-expo);
+    background: transparent;
+}
+
+.visit-item:last-child {
+    border-bottom: none;
+}
+
+.visit-item:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.visit-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.visit-slug {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.visit-slug a {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--apple-blue);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.visit-slug a:hover {
+    color: var(--apple-purple);
+}
+
+.visit-badge {
+    font-size: 14px;
+}
+
+.visit-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.visit-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, rgba(0, 113, 227, 0.08), rgba(191, 90, 242, 0.08));
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.visit-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.visit-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
 /* Checkbox Styling */
 input[type="checkbox"] {
     width: 20px;
