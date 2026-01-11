@@ -61,36 +61,23 @@
 在 D1 控制台依次执行以下 SQL：
 
 ```sql
--- 创建 links 表
-CREATE TABLE IF NOT EXISTS links (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  url TEXT NOT NULL,
-  slug TEXT NOT NULL UNIQUE,
-  note TEXT,
-  created_at INTEGER DEFAULT (unixepoch()),
-  expires_at INTEGER,
-  max_visits INTEGER,
-  visits INTEGER DEFAULT 0
-);
+-- 命令 1: 创建 links 表
+CREATE TABLE IF NOT EXISTS links (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT NOT NULL, slug TEXT NOT NULL UNIQUE, note TEXT, created_at INTEGER DEFAULT (unixepoch()), expires_at INTEGER, max_visits INTEGER, visits INTEGER DEFAULT 0);
+```
 
--- 创建 visits 表
-CREATE TABLE IF NOT EXISTS visits (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  link_id INTEGER NOT NULL,
-  ip TEXT,
-  user_agent TEXT,
-  referer TEXT,
-  visit_time INTEGER DEFAULT (unixepoch()),
-  FOREIGN KEY (link_id) REFERENCES links(id) ON DELETE CASCADE
-);
+```sql
+-- 命令 2: 创建 visits 表
+CREATE TABLE IF NOT EXISTS visits (id INTEGER PRIMARY KEY AUTOINCREMENT, link_id INTEGER NOT NULL, ip TEXT, user_agent TEXT, referer TEXT, visit_time INTEGER DEFAULT (unixepoch()), FOREIGN KEY (link_id) REFERENCES links(id) ON DELETE CASCADE);
+```
 
--- 创建索引
-CREATE INDEX IF NOT EXISTS idx_slug ON links(slug);
-CREATE INDEX IF NOT EXISTS idx_link_id ON visits(link_id);
+```sql
+-- 命令 3: 创建索引
+CREATE INDEX IF NOT EXISTS idx_slug ON links(slug); CREATE INDEX IF NOT EXISTS idx_link_id ON visits(link_id);
+```
 
--- 创建 settings 表
-CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);
-INSERT OR IGNORE INTO settings (key, value) VALUES ('daily_limit', '100');
+```sql
+-- 命令 4: 创建 settings 表
+CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT); INSERT OR IGNORE INTO settings (key, value) VALUES ('daily_limit', '100');
 ```
 
 #### 第 6 步：设置管理员密码
@@ -178,4 +165,4 @@ bay-url/
 
 ## 📄 License
 
-MIT © [BayMaxen](https://github.com/Hadrome)
+MIT © BayMaxen
